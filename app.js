@@ -202,7 +202,7 @@
       autoSize: true,
       maxShadowOpacity: 0.5,
       showCover: true,
-      mobileScrollSupport: true,
+      mobileScrollSupport: false,
       swipeDistance: 50,
       clickEventForward: false,
       useMouseEvents: true,
