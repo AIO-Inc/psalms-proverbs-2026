@@ -352,9 +352,9 @@
       buildAllPages();
       initPageFlip();
     }
-    // Chapter N = page index N
+    // Chapter N = page index N (cover offset by 1 from the flip-based index)
     if (pageFlip) {
-      pageFlip.flip(chapterNum, 'top');
+      pageFlip.turnToPage(chapterNum);
     }
   }
 
