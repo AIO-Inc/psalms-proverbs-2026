@@ -1032,19 +1032,10 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // PRELOAD DATA (while cover is showing)
+  // BUILD DATA (while cover is showing — instant, no fetches)
   // ═══════════════════════════════════════════════════════════════
 
-  loadPsalms().then(() => {
-    console.log(`Preloaded ${bookData.psalms.length} psalms`);
-  }).catch(err => {
-    console.error('Psalm preload error:', err);
-  });
-
-  loadProverbs().then(() => {
-    console.log(`Preloaded ${bookData.proverbs.length} proverbs`);
-  }).catch(err => {
-    console.error('Proverb preload error:', err);
-  });
+  buildPsalmsData();
+  buildProverbsData();
 
 })();
