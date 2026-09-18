@@ -1,4 +1,4 @@
-const CACHE_NAME = 'psalms-proverbs-v20';
+const CACHE_NAME = 'psalms-proverbs-v21';
 const CORE_ASSETS = [
   './',
   './index.html',

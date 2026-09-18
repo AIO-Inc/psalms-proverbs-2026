@@ -243,6 +243,7 @@
 
     let touchStart = null;
     let touchMoved = false;
+    let lastTouchEnd = 0;
 
     const onTouchStart = (e) => {
       if (e.touches.length !== 1) return;
@@ -279,6 +280,7 @@
       const absDy = Math.abs(dy);
 
       touchStart = null;
+      lastTouchEnd = Date.now();
 
       // TAP (small movement) — page turn based on which half was tapped
       if (!touchMoved || (absDx < 30 && absDy < 30 && dt < 300)) {
@@ -308,6 +310,8 @@
 
     // Mouse fallback for desktop
     const onMouseDown = (e) => {
+      // Suppress synthetic mousedown that iOS/Android fire right after a touch
+      if (Date.now() - lastTouchEnd < 700) return;
       if (e.target.closest && e.target.closest('.notes-tab, .notes-content, a, button, input, select, textarea')) return;
       const blockRect = bookContainer.getBoundingClientRect();
       const midX = blockRect.left + blockRect.width / 2;
