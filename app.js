@@ -280,9 +280,9 @@
         const blockRect = bookContainer.getBoundingClientRect();
         const midX = blockRect.left + blockRect.width / 2;
         if (t.clientX > midX) {
-          pageFlip && pageFlip.flipNext('top');
+          pageFlip && pageFlip.turnToNextPage();
         } else {
-          pageFlip && pageFlip.flipPrev('top');
+          pageFlip && pageFlip.turnToPrevPage();
         }
         return;
       }
@@ -290,9 +290,9 @@
       // SWIPE — horizontal swipe flips, vertical swipe scrolls (handled natively)
       if (absDx > absDy && absDx > 40) {
         if (dx < 0) {
-          pageFlip && pageFlip.flipNext('top');
+          pageFlip && pageFlip.turnToNextPage();
         } else {
-          pageFlip && pageFlip.flipPrev('top');
+          pageFlip && pageFlip.turnToPrevPage();
         }
       }
     };
@@ -306,9 +306,9 @@
       const blockRect = bookContainer.getBoundingClientRect();
       const midX = blockRect.left + blockRect.width / 2;
       if (e.clientX > midX) {
-        pageFlip && pageFlip.flipNext('top');
+        pageFlip && pageFlip.turnToNextPage();
       } else {
-        pageFlip && pageFlip.flipPrev('top');
+        pageFlip && pageFlip.turnToPrevPage();
       }
     };
     bookContainer.addEventListener('mousedown', onMouseDown);
