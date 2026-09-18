@@ -9,6 +9,160 @@
   const PSALM_COUNT = 150;
   const PROVERB_COUNT = 31;
 
+  // Psalm titles (embedded from INDEX.md — no fetch needed for TOC)
+  const PSALM_TITLES = [
+    'Two Roads, One Life',
+    'The Kings Are Laughing, and So Is He',
+    'I Slept Anyway',
+    'Lie Down in Peace',
+    'Morning Watch',
+    'The Bed Is Wet with Tears',
+    'He Falls in His Own Pit',
+    'What Is Man?',
+    'He Doesn\'t Forget the Cry of the Poor',
+    'Why Are You Standing So Far Away?',
+    'Don\'t Fly Away',
+    'When Everyone Is Lying',
+    'How Long?',
+    'The Fool Says in His Heart',
+    'Who Gets to Stay?',
+    'You Will Not Abandon Me to the Grave',
+    'Hide Me in the Shadow of Your Wings',
+    'He Reached Down',
+    'Two Books, Same Author',
+    'Some Trust in Horses',
+    'You Gave Him What He Asked',
+    'My God, My God, Why?',
+    'The Shepherd',
+    'Lift Up Your Heads, You Gates',
+    'Remember Not the Sins of My Youth',
+    'Test Me',
+    'One Thing',
+    'Don\'t Be Silent to Me',
+    'The Voice',
+    'Weeping Stays the Night, Joy Comes in the Morning',
+    'Into Your Hands',
+    'When I Kept Silent',
+    'He Spoke, and It Was',
+    'Taste and See',
+    'Fight My Fight',
+    'In Your Light We See Light',
+    'Don\'t Get Heated',
+    'My Wounds Stink',
+    'A Handbreadth',
+    'Out of the Mud',
+    'The Friend Who Ate My Bread',
+    'As the Deer Pants',
+    'Send Out Your Light',
+    'Wake Up! Why Are You Sleeping?',
+    'The Wedding Song',
+    'Be Still and Know',
+    'Clap Your Hands',
+    'Walk Around the City',
+    'You Can\'t Take It With You',
+    'I Don\'t Need Your Bulls',
+    'Create in Me a Clean Heart',
+    'A Green Olive Tree',
+    'The Fool, Second Edition',
+    'By Your Name',
+    'Cast Your Burden',
+    'You Keep My Tears in a Bottle',
+    'Awake, My Glory',
+    'Break Their Teeth',
+    'The Dogs Come Back at Night',
+    'Through God We Will Do Valiantly',
+    'From the End of the Earth',
+    'Only',
+    'Better Than Life',
+    'The Secret Arrows',
+    'You Crown the Year',
+    'Come and Hear What He Did for Me',
+    'Let Your Face Shine on Us — So That',
+    'Father of the Fatherless',
+    'The Waters Have Come Up to My Neck',
+    'Hurry',
+    'Even When I\'m Old and Gray',
+    'The King Who Hears the Poor',
+    'I Almost Slipped',
+    'They Burned Your House',
+    'I Choose the Time',
+    'The Warriors Couldn\'t Lift Their Hands',
+    'Has His Right Hand Changed?',
+    'So the Next Generation Would Know',
+    'How Long, Source? Forever?',
+    'Restore Us',
+    'Open Your Mouth Wide',
+    'You Are Gods — and You Will Die Like Men',
+    'So They Will Know Your Name',
+    'Better Is One Day',
+    'Loyal-Love and Truth Meet',
+    'Give Me an Undivided Heart',
+    'This One Was Born There',
+    'Darkness Is My Closest Friend',
+    'Where Is the Promise?',
+    'Teach Us to Number Our Days',
+    'Under His Wings',
+    'Still Bearing Fruit in Old Age',
+    'The Source Reigns',
+    'Does He Who Made the Ear Not Hear?',
+    'Today, If You Hear His Voice',
+    'Sing a New Song',
+    'Light Is Sown for the Righteous',
+    'Let the Rivers Clap Their Hands',
+    'Holy, Holy, Holy',
+    'Enter His Gates with Thanksgiving',
+    'I Will Not Set Before My Eyes',
+    'But You Remain the Same',
+    'Bless the Source, O My Soul',
+    'You Open Your Hand',
+    'He Remembered His Covenant',
+    'Many Times He Delivered Them',
+    'Let the Redeemed Say So',
+    'A Song Stitched from Two Others',
+    'I Am Prayer',
+    'Sit at My Right Hand',
+    'The Beginning of Wisdom',
+    'He Will Not Be Afraid of Bad News',
+    'He Raises the Poor from the Dust',
+    'The Mountains Skipped Like Rams',
+    'Those Who Make Them Will Be Like Them',
+    'I Will Lift Up the Cup of Salvation',
+    'All You Nations',
+    'The Stone the Builders Rejected',
+    'Your Word Is a Lamp to My Feet',
+    'I Am for Peace',
+    'He Who Keeps You Does Not Sleep',
+    'Our Feet Are Standing in Your Gates',
+    'As the Eyes of Servants Look to the Hand',
+    'If the Source Had Not Been on Our Side',
+    'Like Mount Zion',
+    'Those Who Sow in Tears',
+    'Unless the Source Builds the House',
+    'Your Children Like Olive Shoots',
+    'Plowers Plowed My Back',
+    'Out of the Depths',
+    'Like a Weaned Child',
+    'I Will Not Give Sleep to My Eyes',
+    'How Good It Is',
+    'Bless the Source, You Who Stand by Night',
+    'Their Idols Have Mouths But Cannot Speak',
+    'His Loyal-Love Endures Forever',
+    'By the Rivers of Babylon',
+    'You Made Me Bold',
+    'Awesomely and Wonderfully Made',
+    'Keep Me From the Hands of the Violent',
+    'The Lifting of My Hands as the Evening Sacrifice',
+    'No One Cares for My Soul',
+    'Do Not Bring Your Servant Into Judgment',
+    'What Is Man That You Care for Him',
+    'You Open Your Hand',
+    'Do Not Put Your Trust in Princes',
+    'He Heals the Brokenhearted and Counts the Stars',
+    'Praise Him, Sun and Moon',
+    'Sing to the Source a New Song',
+    'Let Everything That Has Breath'
+  ];
+
   // Proverb titles (standard chapter themes — will be replaced with Skywalker's titles when available)
   const PROVERB_TITLES = [
     'The Fear of the Source Is the Beginning of Knowledge',
@@ -172,91 +326,66 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // LOAD PSALMS
+  // BUILD BOOK DATA — uses embedded titles, no fetch needed
+  // Text bodies are lazy-loaded on demand when a chapter is opened
   // ═══════════════════════════════════════════════════════════════
 
-  async function loadPsalms() {
-    const promises = [];
+  function buildPsalmsData() {
+    bookData.psalms = [];
     for (let i = 1; i <= PSALM_COUNT; i++) {
-      const num = String(i).padStart(3, '0');
-      promises.push(
-        fetch(`psalms/PSALM-${num}.md`)
-          .then(r => {
-            if (!r.ok) throw new Error(`Failed to load PSALM-${num}.md`);
-            return r.text();
-          })
-          .then(md => {
-            const parsed = parseMarkdown(md);
-            const titleMatch = parsed.title.match(/^PSALM\s+\d+\s+\u2014\s+(.+)$/i);
-            const psalmTitle = titleMatch ? titleMatch[1] : parsed.title;
-            return {
-              num: i,
-              title: psalmTitle,
-              subtitle: parsed.subtitle,
-              body: parsed.body,
-              notes: parsed.notes,
-              available: true
-            };
-          })
-          .catch(err => {
-            console.error(`Error loading Psalm ${i}:`, err);
-            return {
-              num: i,
-              title: '( unavailable )',
-              subtitle: '',
-              body: '<p>This psalm could not be loaded.</p>',
-              notes: '',
-              available: false
-            };
-          })
-      );
+      bookData.psalms.push({
+        num: i,
+        title: PSALM_TITLES[i - 1] || `Psalm ${i}`,
+        subtitle: '',
+        body: '',  // lazy-loaded
+        notes: '',
+        available: true,  // title available; body fetched on demand
+        bodyLoaded: false
+      });
     }
-    bookData.psalms = await Promise.all(promises);
-    bookData.psalms.sort((a, b) => a.num - b.num);
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // LOAD PROVERBS — attempts fetch, gracefully handles missing files
-  // ═══════════════════════════════════════════════════════════════
-
-  async function loadProverbs() {
-    const promises = [];
+  function buildProverbsData() {
+    bookData.proverbs = [];
     for (let i = 1; i <= PROVERB_COUNT; i++) {
-      const num = String(i).padStart(3, '0');
-      promises.push(
-        fetch(`proverbs/PROVERB-${num}.md`)
-          .then(r => {
-            if (!r.ok) throw new Error(`PROVERB-${num}.md not found`);
-            return r.text();
-          })
-          .then(md => {
-            const parsed = parseMarkdown(md);
-            const titleMatch = parsed.title.match(/^PROVERB\s+\d+\s+\u2014\s+(.+)$/i);
-            const proverbTitle = titleMatch ? titleMatch[1] : parsed.title;
-            return {
-              num: i,
-              title: proverbTitle,
-              subtitle: parsed.subtitle,
-              body: parsed.body,
-              notes: parsed.notes,
-              available: true
-            };
-          })
-          .catch(() => {
-            // File doesn't exist yet — use placeholder title
-            return {
-              num: i,
-              title: PROVERB_TITLES[i - 1] || `Proverb ${i}`,
-              subtitle: '',
-              body: '',
-              notes: '',
-              available: false
-            };
-          })
-      );
+      bookData.proverbs.push({
+        num: i,
+        title: PROVERB_TITLES[i - 1] || `Proverb ${i}`,
+        subtitle: '',
+        body: '',
+        notes: '',
+        available: false,  // files don't exist yet
+        bodyLoaded: false
+      });
     }
-    bookData.proverbs = await Promise.all(promises);
-    bookData.proverbs.sort((a, b) => a.num - b.num);
+  }
+
+  // Lazy-load a single chapter's text
+  async function loadChapterBody(bookId, chapterNum) {
+    const entry = bookData[bookId] ? bookData[bookId][chapterNum - 1] : null;
+    if (!entry || entry.bodyLoaded) return entry;
+
+    const label = bookId === 'psalms' ? 'PSALM' : 'PROVERB';
+    const num = String(chapterNum).padStart(3, '0');
+    const url = `${bookId}/${label}-${num}.md`;
+
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const md = await r.text();
+      const parsed = parseMarkdown(md);
+      const titleMatch = parsed.title.match(new RegExp(`^${label}\\s+\\d+\\s+.+?\\s+(.+)$`, 'i'));
+      if (titleMatch) entry.title = titleMatch[1];
+      entry.subtitle = parsed.subtitle;
+      entry.body = parsed.body;
+      entry.notes = parsed.notes;
+      entry.available = true;
+      entry.bodyLoaded = true;
+    } catch (err) {
+      console.error(`Error loading ${label} ${chapterNum}:`, err);
+      entry.bodyLoaded = true;  // don't retry
+    }
+    return entry;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -387,10 +516,16 @@
       html += `<div class="psalm-subtitle">${escapeHtml(entry.subtitle)}</div>`;
     }
 
-    // Body — or "Coming soon" placeholder
+    // Body — or placeholder if not yet loaded
     if (entry.available && entry.body) {
       html += `<div class="psalm-body">${renderMarkdown(entry.body)}</div>`;
+    } else if (entry.available && !entry.bodyLoaded) {
+      // Will be lazy-loaded — show placeholder
+      html += `<div class="psalm-body"><p style="text-align:center; color:var(--ink-light); font-style:italic;">Loading…</p></div>`;
+    } else if (entry.available && entry.bodyLoaded && !entry.body) {
+      html += `<div class="psalm-body"><p style="text-align:center; color:var(--ink-light); font-style:italic;">Could not load this chapter.</p></div>`;
     } else {
+      // Not available (e.g., Proverbs not yet written)
       html += `<div class="psalm-body psalm-body-coming">`;
       html += `<p style="text-align:center; font-style:italic; color:var(--ink-light); margin-top:40px;">Coming soon</p>`;
       html += `<p style="text-align:center; font-size:12px; color:var(--gold-dim); margin-top:8px;">This chapter will be added when the rendering is ready.</p>`;
@@ -523,6 +658,30 @@
       if (entry) {
         topBarTitle.textContent = `${label} ${entry.num}`;
         updateAudioForChapter(currentBookId, entry.num);
+
+        // Lazy-load body text if not yet loaded
+        if (!entry.bodyLoaded) {
+          loadChapterBody(currentBookId, chapterNum).then(() => {
+            // Update the page DOM in place
+            const pageEl = bookContainer.querySelector(`.page-psalm[data-chapter="${chapterNum}"]`);
+            if (pageEl && entry.body) {
+              const bodyEl = pageEl.querySelector('.psalm-body');
+              if (bodyEl && !bodyEl.innerHTML.trim()) {
+                bodyEl.innerHTML = renderMarkdown(entry.body);
+                // Add notes if present
+                if (entry.notes) {
+                  let notesEl = pageEl.querySelector('.notes-section');
+                  if (!notesEl) {
+                    notesEl = document.createElement('div');
+                    notesEl.className = 'notes-section';
+                    notesEl.innerHTML = `<div class="notes-tab" onclick="this.nextElementSibling.classList.toggle('open')">Translation Notes</div><div class="notes-content">${renderMarkdown(entry.notes)}</div>`;
+                    pageEl.appendChild(notesEl);
+                  }
+                }
+              }
+            }
+          });
+        }
       }
     } else if (pageIndex === 0) {
       topBarTitle.textContent = 'Psalms & Proverbs';
@@ -540,17 +699,30 @@
   // NAVIGATION
   // ═══════════════════════════════════════════════════════════════
 
-  function navigateToChapter(bookId, chapterNum) {
+  async function navigateToChapter(bookId, chapterNum) {
     // If switching books, rebuild pages
     if (bookId !== currentBookId) {
       currentBookId = bookId;
-      // Destroy current page flip, rebuild, then navigate
       if (pageFlip) {
         pageFlip.destroy();
         pageFlip = null;
       }
       buildAllPages();
       initPageFlip();
+    }
+
+    // Pre-load the chapter body before navigating
+    const entry = bookData[bookId] ? bookData[bookId][chapterNum - 1] : null;
+    if (entry && !entry.bodyLoaded) {
+      await loadChapterBody(bookId, chapterNum);
+      // Update page DOM
+      const pageEl = bookContainer.querySelector(`.page-psalm[data-chapter="${chapterNum}"]`);
+      if (pageEl && entry.body) {
+        const bodyEl = pageEl.querySelector('.psalm-body');
+        if (bodyEl) {
+          bodyEl.innerHTML = renderMarkdown(entry.body);
+        }
+      }
     }
 
     // Chapter N is at page index (N + 1)
@@ -703,12 +875,12 @@
     coverScreen.style.display = 'none';
     loadingIndicator.hidden = false;
 
-    // Load both books if not already loaded
+    // Build book data from embedded titles — instant, no fetches
     if (!bookData.psalms) {
-      await loadPsalms();
+      buildPsalmsData();
     }
     if (!bookData.proverbs) {
-      await loadProverbs();
+      buildProverbsData();
     }
 
     buildAllPages();
