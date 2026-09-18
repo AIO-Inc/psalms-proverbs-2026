@@ -36,6 +36,7 @@
   let pageFlip = null;
   let currentPageIndex = 0;
   let currentBookId = 'psalms';
+  let lastLeftIndex = -1; // spread mode: left-page index of the last flip, for direction detection
   let bookData = { psalms: [], proverbs: [] };
   let isBookOpen = false;
   let currentAudioBook = null;
@@ -210,10 +211,27 @@
       disableFlipByClick: false
     });
 
+    lastLeftIndex = -1;
     pageFlip.loadFromHTML(allPages);
 
     pageFlip.on('flip', (e) => {
-      handlePageChange(e.data);
+      const leftIdx = e.data;
+      let revealed = leftIdx;
+      // In landscape "spread" mode StPageFlip reports only the LEFT page of the
+      // two-page spread (always even). Track direction so audio follows the page
+      // just revealed: forward flip reveals the right page (odd), backward reveals
+      // the left (even). On the initial load (dir 0) reveal the right page so Psalm 1
+      // (which sits beside the cover) gets audio.
+      if (pageFlip && pageFlip.getOrientation() === 'landscape') {
+        const dir = leftIdx > lastLeftIndex ? 1 : (leftIdx < lastLeftIndex ? -1 : 0);
+        // Cover spread is [cover, Psalm 1]: left page 0 is the cover, so the
+        // meaningful chapter on the right is always 1.
+        revealed = (leftIdx === 0) ? 1 : (dir >= 0 ? leftIdx + 1 : leftIdx);
+        const maxChapter = (BOOKS.find(b => b.id === currentBookId) || { count: 0 }).count;
+        if (revealed > maxChapter) revealed = maxChapter;
+      }
+      lastLeftIndex = leftIdx;
+      handlePageChange(revealed);
     });
 
     // Cleanup after flip animation

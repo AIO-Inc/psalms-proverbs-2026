@@ -1,4 +1,4 @@
-const CACHE_NAME = 'psalms-proverbs-v26';
+const CACHE_NAME = 'psalms-proverbs-v27';
 const CORE_ASSETS = [
   './styles.css',
   './app.js',
