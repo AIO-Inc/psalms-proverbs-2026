@@ -103,7 +103,7 @@
   // ─── Build cover page ───
   function buildCoverPage() {
     const div = document.createElement('div');
-    div.className = 'page page-cover stf__item --hard';
+    div.className = 'page page-cover stf__item';
     div.innerHTML = `
       <div class="cover-leather">
         <div class="cover-emboss">
@@ -201,7 +201,7 @@
       startZIndex: 5,
       autoSize: true,
       maxShadowOpacity: 0.5,
-      showCover: true,
+      showCover: false,
       mobileScrollSupport: false,
       swipeDistance: 50,
       clickEventForward: false,
@@ -216,7 +216,7 @@
       handlePageChange(e.data);
     });
 
-    // Force cleanup after animation completes to clear stuck cover page
+    // Cleanup after flip animation
     pageFlip.on('changeState', (e) => {
       if (e.data === 'read' && pageFlip) {
         setTimeout(() => {
@@ -225,7 +225,6 @@
             render.setFlippingPage(null);
             render.setBottomPage(null);
             render.clearShadow();
-            pageFlip.update();
           } catch(err) {}
         }, 100);
       }
