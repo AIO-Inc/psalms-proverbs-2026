@@ -843,6 +843,128 @@ html, body {
 
 #search-overlay[hidden] { display: none; }
 
+/* ─── TOC Overlay ─── */
+#toc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,26,0.97);
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+#toc-overlay[hidden] { display: none; }
+
+.toc-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(201,168,76,0.25);
+  flex-shrink: 0;
+}
+
+.toc-overlay-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+#toc-close-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+#toc-overlay-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 20px 24px 40px 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+#toc-overlay-content .toc-book-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 16px 0 8px 0;
+  letter-spacing: 1px;
+}
+
+#toc-overlay-content .toc-section-title {
+  font-family: var(--serif);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  margin: 12px 0 4px 0;
+  padding-bottom: 3px;
+  border-bottom: 0.5px solid rgba(201,168,76,0.2);
+}
+
+#toc-overlay-content .toc-entry {
+  display: flex;
+  align-items: baseline;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cream);
+  transition: color 0.2s;
+}
+
+#toc-overlay-content .toc-entry:active,
+#toc-overlay-content .toc-entry:hover {
+  color: var(--gold);
+}
+
+#toc-overlay-content .toc-entry .psalm-num {
+  font-weight: 700;
+  min-width: 32px;
+  color: var(--gold-dim);
+}
+
+#toc-overlay-content .toc-entry .psalm-title-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#toc-overlay-content .toc-entry .dot-leaders {
+  flex: 0 0 auto;
+  width: 20px;
+  border-bottom: 1px dotted rgba(201,168,76,0.3);
+  margin: 0 6px 4px 6px;
+}
+
+#toc-overlay-content .toc-entry.toc-entry-coming {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#toc-overlay-content .toc-book-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+  margin: 16px 0;
+}
+
 .search-header {
   display: flex;
   align-items: center;

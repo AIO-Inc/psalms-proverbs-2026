@@ -237,6 +237,9 @@
   const closeBookBtn = document.getElementById('close-book');
   const searchBtn = document.getElementById('search-btn');
   const tocBtn = document.getElementById('toc-btn');
+  const tocOverlay = document.getElementById('toc-overlay');
+  const tocOverlayContent = document.getElementById('toc-overlay-content');
+  const tocCloseBtn = document.getElementById('toc-close-btn');
   const searchOverlay = document.getElementById('search-overlay');
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
@@ -563,11 +566,8 @@
     const coverPage = buildCoverPage();
     bookContainer.appendChild(coverPage);
 
-    // Page 1: TOC
-    const tocPage = buildTOCPage();
-    bookContainer.appendChild(tocPage);
-
-    // Pages 2..count+1: Chapter pages for current book
+    // TOC is now a separate overlay — NOT inside StPageFlip
+    // Pages 1..count: Chapter pages for current book
     const currentBook = BOOKS.find(b => b.id === currentBookId);
     const chapterCount = currentBook.count;
 
@@ -923,13 +923,62 @@
 
   closeBookBtn.addEventListener('click', closeBook);
 
-  // TOC button — jump back to table of contents (page index 1)
+  // TOC button — show overlay with full table of contents
   if (tocBtn) {
     tocBtn.addEventListener('click', () => {
-      if (pageFlip) {
-        pageFlip.flip(1, 'top');
+      showTocOverlay();
+    });
+  }
+  if (tocCloseBtn) {
+    tocCloseBtn.addEventListener('click', () => {
+      tocOverlay.hidden = true;
+    });
+  }
+
+  function showTocOverlay() {
+    // Build TOC content into the overlay
+    let html = '';
+    BOOKS.forEach((book, bookIdx) => {
+      html += `<div class="toc-book-title">${book.name}</div>`;
+      book.sections.forEach(section => {
+        html += `<div class="toc-section-title">${section.name}</div>`;
+        for (let n = section.start; n <= section.end; n++) {
+          const entry = bookData[book.id] ? bookData[book.id][n - 1] : null;
+          if (!entry) continue;
+          const available = entry.available;
+          const entryClass = available ? 'toc-entry' : 'toc-entry toc-entry-coming';
+          const dataAttr = `data-book="${book.id}" data-chapter="${n}"`;
+          html += `<div class="${entryClass}" ${dataAttr}>`;
+          html += `<span class="psalm-num">${n}</span>`;
+          html += `<span class="psalm-title-text">${escapeHtml(entry.title)}</span>`;
+          html += `<span class="dot-leaders"></span>`;
+          if (available) {
+            html += `<span class="psalm-page">${n}</span>`;
+          } else {
+            html += `<span class="psalm-page" style="color:var(--gold-dim);font-size:11px;font-style:italic;">Soon</span>`;
+          }
+          html += `</div>`;
+        }
+      });
+      if (bookIdx < BOOKS.length - 1) {
+        html += `<div class="toc-book-divider"></div>`;
       }
     });
+    tocOverlayContent.innerHTML = html;
+    // Attach click handlers
+    tocOverlayContent.querySelectorAll('.toc-entry').forEach(entry => {
+      entry.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const bookId = entry.dataset.book;
+        const chapterNum = parseInt(entry.dataset.chapter);
+        const item = bookData[bookId] ? bookData[bookId][chapterNum - 1] : null;
+        if (item && item.available) {
+          tocOverlay.hidden = true;
+          navigateToChapter(bookId, chapterNum);
+        }
+      });
+    });
+    tocOverlay.hidden = false;
   }
 
   // ═══════════════════════════════════════════════════════════════

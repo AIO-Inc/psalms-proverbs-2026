@@ -47,6 +47,15 @@
        ═══════════════════════════════════════════════════════════ -->
   <div id="book-screen" hidden>
 
+    <!-- TOC Overlay (separate from StPageFlip) -->
+    <div id="toc-overlay" hidden>
+      <div class="toc-overlay-header">
+        <span class="toc-overlay-title">Contents</span>
+        <button id="toc-close-btn" aria-label="Close contents">✕</button>
+      </div>
+      <div id="toc-overlay-content"></div>
+    </div>
+
     <!-- Top bar -->
     <div id="top-bar">
       <button id="close-book" aria-label="Close book">
@@ -127,6 +136,6 @@
   </div>
 
   <script src="StPageFlip.js"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
