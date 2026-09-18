@@ -216,15 +216,18 @@
       handlePageChange(e.data);
     });
 
-    // Force redraw after animation completes to clear stuck pages
+    // Force cleanup after animation completes to clear stuck cover page
     pageFlip.on('changeState', (e) => {
       if (e.data === 'read' && pageFlip) {
-        // The render loop may have stopped — force a drawFrame
         setTimeout(() => {
           try {
+            const render = pageFlip.getRender();
+            render.setFlippingPage(null);
+            render.setBottomPage(null);
+            render.clearShadow();
             pageFlip.update();
           } catch(err) {}
-        }, 50);
+        }, 100);
       }
     });
   }
