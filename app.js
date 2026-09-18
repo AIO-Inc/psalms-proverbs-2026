@@ -132,7 +132,7 @@
     div.dataset.chapter = chapterNum;
 
     const label = book.label;
-    let html = '';
+    let html = '<div class="page-scroll">';
 
     // Header
     html += `<div class="psalm-header">`;
@@ -164,6 +164,7 @@
       html += `</div>`;
     }
 
+    html += '</div>'; // close .page-scroll
     div.innerHTML = html;
     return div;
   }
