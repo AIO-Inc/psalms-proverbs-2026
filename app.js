@@ -631,8 +631,8 @@
   searchInput.addEventListener('input', (e) => performSearch(e.target.value));
   audioPlay.addEventListener('click', toggleAudioPlay);
   audioSeek.addEventListener('input', () => { audioEl.currentTime = audioSeek.value; });
-  pagePrev.addEventListener('click', () => { pageFlip && pageFlip.flipPrev(); });
-  pageNext.addEventListener('click', () => { pageFlip && pageFlip.flipNext(); });
+  pagePrev.addEventListener('click', () => { pageFlip && pageFlip.turnToPrevPage(); });
+  pageNext.addEventListener('click', () => { pageFlip && pageFlip.turnToNextPage(); });
   speedBtn.addEventListener('click', () => {
     const speeds = [1, 1.25, 1.5, 0.75];
     const idx = speeds.indexOf(playbackRate);
@@ -649,8 +649,8 @@
       if (!searchOverlay.hidden) { closeSearch(); return; }
       closeBook();
     }
-    if (e.key === 'ArrowLeft' && pageFlip) pageFlip.flipPrev();
-    if (e.key === 'ArrowRight' && pageFlip) pageFlip.flipNext();
+    if (e.key === 'ArrowLeft' && pageFlip) pageFlip.turnToPrevPage();
+    if (e.key === 'ArrowRight' && pageFlip) pageFlip.turnToNextPage();
   });
 
   // ─── Init ───
