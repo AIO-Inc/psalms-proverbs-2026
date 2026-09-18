@@ -203,10 +203,10 @@
       maxShadowOpacity: 0.5,
       showCover: false,
       mobileScrollSupport: false,
-      swipeDistance: 50,
+      swipeDistance: 30,
       clickEventForward: false,
-      useMouseEvents: true,
-      showPageCorners: true,
+      useMouseEvents: false,
+      showPageCorners: false,
       disableFlipByClick: false
     });
 
@@ -229,6 +229,96 @@
         }, 100);
       }
     });
+
+    setupGestures();
+  }
+
+  // ─── Custom tap/swipe gestures (bypass StPageFlip's flaky touch handling) ───
+  function setupGestures() {
+    // Remove any prior listeners to avoid stacking on rebuild
+    if (bookContainer._gestureCleanup) {
+      bookContainer._gestureCleanup();
+      bookContainer._gestureCleanup = null;
+    }
+
+    let touchStart = null;
+    let touchMoved = false;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+      touchMoved = false;
+    };
+
+    const onTouchMove = (e) => {
+      if (!touchStart || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchStart.x;
+      const dy = t.clientY - touchStart.y;
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) touchMoved = true;
+      // Allow vertical scroll to pass through for long pages
+      if (Math.abs(dy) > Math.abs(dx)) return;
+      if (Math.abs(dx) > 10) {
+        e.preventDefault();
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      if (!touchStart) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStart.x;
+      const dy = t.clientY - touchStart.y;
+      const dt = Date.now() - touchStart.time;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+
+      touchStart = null;
+
+      // TAP (small movement) — page turn based on which half was tapped
+      if (!touchMoved || (absDx < 30 && absDy < 30 && dt < 300)) {
+        const blockRect = bookContainer.getBoundingClientRect();
+        const midX = blockRect.left + blockRect.width / 2;
+        if (t.clientX > midX) {
+          pageFlip && pageFlip.flipNext('top');
+        } else {
+          pageFlip && pageFlip.flipPrev('top');
+        }
+        return;
+      }
+
+      // SWIPE — horizontal swipe flips, vertical swipe scrolls (handled natively)
+      if (absDx > absDy && absDx > 40) {
+        if (dx < 0) {
+          pageFlip && pageFlip.flipNext('top');
+        } else {
+          pageFlip && pageFlip.flipPrev('top');
+        }
+      }
+    };
+
+    bookContainer.addEventListener('touchstart', onTouchStart, { passive: true });
+    bookContainer.addEventListener('touchmove', onTouchMove, { passive: false });
+    bookContainer.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    // Mouse fallback for desktop
+    const onMouseDown = (e) => {
+      const blockRect = bookContainer.getBoundingClientRect();
+      const midX = blockRect.left + blockRect.width / 2;
+      if (e.clientX > midX) {
+        pageFlip && pageFlip.flipNext('top');
+      } else {
+        pageFlip && pageFlip.flipPrev('top');
+      }
+    };
+    bookContainer.addEventListener('mousedown', onMouseDown);
+
+    bookContainer._gestureCleanup = () => {
+      bookContainer.removeEventListener('touchstart', onTouchStart);
+      bookContainer.removeEventListener('touchmove', onTouchMove);
+      bookContainer.removeEventListener('touchend', onTouchEnd);
+      bookContainer.removeEventListener('mousedown', onMouseDown);
+    };
   }
 
   // ─── Page change handler ───
