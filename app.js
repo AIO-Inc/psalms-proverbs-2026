@@ -875,16 +875,20 @@
     coverScreen.style.display = 'none';
     loadingIndicator.hidden = false;
 
-    // Build book data from embedded titles — instant, no fetches
-    if (!bookData.psalms) {
-      buildPsalmsData();
-    }
-    if (!bookData.proverbs) {
-      buildProverbsData();
-    }
+    try {
+      // Build book data from embedded titles — instant, no fetches
+      if (!bookData.psalms) {
+        buildPsalmsData();
+      }
+      if (!bookData.proverbs) {
+        buildProverbsData();
+      }
 
-    buildAllPages();
-    initPageFlip();
+      buildAllPages();
+      initPageFlip();
+    } catch (err) {
+      console.error('openBook error:', err);
+    }
 
     loadingIndicator.hidden = true;
     bookCover.style.transform = '';
