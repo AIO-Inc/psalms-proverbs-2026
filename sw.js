@@ -1,15 +1,12 @@
-const CACHE_NAME = 'psalms-proverbs-v24';
+const CACHE_NAME = 'psalms-proverbs-v25';
 const CORE_ASSETS = [
-  './',
-  './index.html',
   './styles.css',
   './app.js',
   './data.json',
   './StPageFlip.js',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png',
-  './audio/PSALM-023.mp3'
+  './icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -34,11 +31,35 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // App shell + JS/CSS: network-first so deploys always show fresh.
+  // Falls back to cache only when offline.
+  if (url.pathname.endsWith('.html') ||
+      url.pathname.endsWith('/') ||
+      url.pathname.endsWith('.js') ||
+      url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Audio + other assets: cache-first (large, immutable files).
   event.respondWith(
     caches.match(event.request).then(cached => {
       return cached || fetch(event.request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
-      }).catch(() => cached);
+      });
     })
   );
 });
