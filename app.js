@@ -624,7 +624,7 @@
       disableFlipByClick: false
     });
 
-    pageFlip.loadFromHtml(allPages);
+    pageFlip.loadFromHTML(allPages);
 
     pageFlip.on('flip', (e) => {
       const pageIndex = e.data;
