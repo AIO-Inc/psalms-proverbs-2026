@@ -318,6 +318,8 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   position: relative;
   font-family: var(--serif);
   color: var(--ink);
@@ -420,6 +422,8 @@ html, body {
 /* ─── Table of Contents Page ─── */
 .page-toc {
   padding: 32px 24px 20px 24px;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .page-toc::before { display: none; }
