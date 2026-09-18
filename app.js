@@ -365,6 +365,9 @@
     // Chapter N = page index N (cover offset by 1 from the flip-based index)
     if (pageFlip) {
       pageFlip.turnToPage(chapterNum);
+      // turnToPage does not emit a 'flip' event, so update the chrome here
+      // (title + audio ribbon) rather than waiting on handlePageChange.
+      handlePageChange(chapterNum);
     }
   }
 
