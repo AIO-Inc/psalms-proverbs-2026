@@ -215,6 +215,18 @@
     pageFlip.on('flip', (e) => {
       handlePageChange(e.data);
     });
+
+    // Force redraw after animation completes to clear stuck pages
+    pageFlip.on('changeState', (e) => {
+      if (e.data === 'read' && pageFlip) {
+        // The render loop may have stopped — force a drawFrame
+        setTimeout(() => {
+          try {
+            pageFlip.update();
+          } catch(err) {}
+        }, 50);
+      }
+    });
   }
 
   // ─── Page change handler ───
