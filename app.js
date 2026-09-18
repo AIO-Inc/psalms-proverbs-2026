@@ -159,7 +159,7 @@
     // Notes
     if (entry.notes) {
       html += `<div class="notes-section">`;
-      html += `<div class="notes-tab" onclick="this.nextElementSibling.classList.toggle('open')">Translation Notes</div>`;
+      html += `<div class="notes-tab">Translation Notes</div>`;
       html += `<div class="notes-content">${renderMarkdown(entry.notes)}</div>`;
       html += `</div>`;
     }
@@ -246,6 +246,11 @@
 
     const onTouchStart = (e) => {
       if (e.touches.length !== 1) return;
+      // Don't hijack taps on interactive elements (notes tab, etc.)
+      if (e.target.closest && e.target.closest('.notes-tab, .notes-content, a, button, input, select, textarea')) {
+        touchStart = null;
+        return;
+      }
       const t = e.touches[0];
       touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
       touchMoved = false;
@@ -303,6 +308,7 @@
 
     // Mouse fallback for desktop
     const onMouseDown = (e) => {
+      if (e.target.closest && e.target.closest('.notes-tab, .notes-content, a, button, input, select, textarea')) return;
       const blockRect = bookContainer.getBoundingClientRect();
       const midX = blockRect.left + blockRect.width / 2;
       if (e.clientX > midX) {
@@ -574,6 +580,17 @@
   }
 
   // ─── Event listeners ───
+  // Translation notes tab — delegated (works on touch + mouse)
+  bookContainer.addEventListener('click', (e) => {
+    const tab = e.target.closest && e.target.closest('.notes-tab');
+    if (tab) {
+      const content = tab.nextElementSibling;
+      if (content && content.classList.contains('notes-content')) {
+        content.classList.toggle('open');
+      }
+    }
+  });
+
   bookCover.addEventListener('click', openBook);
   bookCover.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBook(); }
