@@ -212,16 +212,16 @@
     });
 
     lastLeftIndex = -1;
-    pageFlip.loadFromHTML(allPages);
 
+    // Register BEFORE loadFromHTML: that call synchronously fires the initial
+    // 'flip'(0) for the cover spread, and we want Psalm 1 audio shown on open.
     pageFlip.on('flip', (e) => {
       const leftIdx = e.data;
       let revealed = leftIdx;
       // In landscape "spread" mode StPageFlip reports only the LEFT page of the
       // two-page spread (always even). Track direction so audio follows the page
       // just revealed: forward flip reveals the right page (odd), backward reveals
-      // the left (even). On the initial load (dir 0) reveal the right page so Psalm 1
-      // (which sits beside the cover) gets audio.
+      // the left (even).
       if (pageFlip && pageFlip.getOrientation() === 'landscape') {
         const dir = leftIdx > lastLeftIndex ? 1 : (leftIdx < lastLeftIndex ? -1 : 0);
         // Cover spread is [cover, Psalm 1]: left page 0 is the cover, so the
@@ -233,6 +233,8 @@
       lastLeftIndex = leftIdx;
       handlePageChange(revealed);
     });
+
+    pageFlip.loadFromHTML(allPages);
 
     // Cleanup after flip animation
     pageFlip.on('changeState', (e) => {
