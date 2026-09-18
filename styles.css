@@ -296,6 +296,37 @@ html, body {
   max-width: 900px;
 }
 
+/* Page-turn arrow buttons */
+.page-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 70;
+  width: 44px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.06);
+  border: none;
+  color: var(--gold, #b8924a);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  opacity: 0.55;
+}
+.page-nav:hover {
+  background: rgba(0, 0, 0, 0.14);
+  opacity: 1;
+}
+.page-nav[disabled] {
+  opacity: 0.15;
+  cursor: default;
+  pointer-events: none;
+}
+#page-prev { left: 12px; }
+#page-next { right: 12px; }
+
 /* StPageFlip overrides */
 .stf__parent {
   margin: 0 auto;

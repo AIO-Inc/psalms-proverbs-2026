@@ -20,6 +20,8 @@
   const tocOverlay = document.getElementById('toc-overlay');
   const tocOverlayContent = document.getElementById('toc-overlay-content');
   const tocCloseBtn = document.getElementById('toc-close-btn');
+  const pagePrev = document.getElementById('page-prev');
+  const pageNext = document.getElementById('page-next');
   const searchOverlay = document.getElementById('search-overlay');
   const searchInput = document.getElementById('search-input');
   const searchClose = document.getElementById('search-close');
@@ -206,9 +208,9 @@
       mobileScrollSupport: false,
       swipeDistance: 30,
       clickEventForward: false,
-      useMouseEvents: false,
-      showPageCorners: false,
-      disableFlipByClick: false
+      useMouseEvents: true,
+      showPageCorners: true,
+      disableFlipByClick: true
     });
 
     lastLeftIndex = -1;
@@ -328,26 +330,10 @@
     bookContainer.addEventListener('touchmove', onTouchMove, { passive: false });
     bookContainer.addEventListener('touchend', onTouchEnd, { passive: true });
 
-    // Mouse fallback for desktop
-    const onMouseDown = (e) => {
-      // Suppress synthetic mousedown that iOS/Android fire right after a touch
-      if (Date.now() - lastTouchEnd < 700) return;
-      if (e.target.closest && e.target.closest('.notes-tab, .notes-content, a, button, input, select, textarea')) return;
-      const blockRect = bookContainer.getBoundingClientRect();
-      const midX = blockRect.left + blockRect.width / 2;
-      if (e.clientX > midX) {
-        pageFlip && pageFlip.turnToNextPage();
-      } else {
-        pageFlip && pageFlip.turnToPrevPage();
-      }
-    };
-    bookContainer.addEventListener('mousedown', onMouseDown);
-
     bookContainer._gestureCleanup = () => {
       bookContainer.removeEventListener('touchstart', onTouchStart);
       bookContainer.removeEventListener('touchmove', onTouchMove);
       bookContainer.removeEventListener('touchend', onTouchEnd);
-      bookContainer.removeEventListener('mousedown', onMouseDown);
     };
   }
 
@@ -356,6 +342,14 @@
     currentPageIndex = pageIndex;
     const currentBook = BOOKS.find(b => b.id === currentBookId);
     const label = currentBookId === 'psalms' ? 'Psalm' : 'Proverb';
+
+    // Arrow button enable/disable based on position
+    if (pageFlip && pageFlip.getPageCount) {
+      const total = pageFlip.getPageCount();
+      const cur = pageFlip.getCurrentPageIndex();
+      pagePrev.disabled = cur <= 0;
+      pageNext.disabled = cur >= total - 1;
+    }
 
     // Page 0 = cover, Page 1 = chapter 1, etc.
     if (pageIndex >= 1 && pageIndex <= currentBook.count) {
@@ -637,6 +631,8 @@
   searchInput.addEventListener('input', (e) => performSearch(e.target.value));
   audioPlay.addEventListener('click', toggleAudioPlay);
   audioSeek.addEventListener('input', () => { audioEl.currentTime = audioSeek.value; });
+  pagePrev.addEventListener('click', () => { pageFlip && pageFlip.flipPrev(); });
+  pageNext.addEventListener('click', () => { pageFlip && pageFlip.flipNext(); });
   speedBtn.addEventListener('click', () => {
     const speeds = [1, 1.25, 1.5, 0.75];
     const idx = speeds.indexOf(playbackRate);
