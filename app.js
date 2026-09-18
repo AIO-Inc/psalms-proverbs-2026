@@ -579,8 +579,15 @@
     bookScreen.hidden = true;
     coverScreen.style.display = '';
     if (pageFlip) {
+      try { pageFlip.getUI().removeHandlers(); } catch (err) {}
       pageFlip.destroy();
       pageFlip = null;
+      // StPageFlip.destroy() removes #book from the DOM entirely. Re-attach
+      // it so a subsequent openBook() can rebuild pages into a live node.
+      const bookWrap = document.getElementById('book-container');
+      if (bookWrap && !bookWrap.contains(bookContainer)) {
+        bookWrap.appendChild(bookContainer);
+      }
     }
     hideAudioRibbon();
     topBarTitle.textContent = 'Psalms & Proverbs';
