@@ -648,10 +648,11 @@
     const chapterCount = currentBook.count;
     const label = currentBookId === 'psalms' ? 'Psalm' : 'Proverb';
 
-    // Page layout: 0=cover, 1=TOC, 2=chapter 1, ..., count+1=chapter count, count+2=closing
+    // Page layout: 0=cover, 1=chapter 1, 2=chapter 2, ..., count=chapter count, count+1=closing
+    // (TOC was removed from StPageFlip — it's a separate overlay now)
     let chapterNum = null;
-    if (pageIndex >= 2 && pageIndex <= chapterCount + 1) {
-      chapterNum = pageIndex - 1;
+    if (pageIndex >= 1 && pageIndex <= chapterCount) {
+      chapterNum = pageIndex;
     }
 
     if (chapterNum) {
@@ -726,8 +727,8 @@
       }
     }
 
-    // Chapter N is at page index (N + 1)
-    const targetPage = chapterNum + 1;
+    // Chapter N is at page index N (page 0 = cover, page 1 = chapter 1)
+    const targetPage = chapterNum;
     if (pageFlip) {
       pageFlip.flip(targetPage, 'top');
     }
