@@ -3,7 +3,7 @@
    Caches all text content for offline reading
    ═══════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'psalms-proverbs-v4';
+const CACHE_NAME = 'psalms-proverbs-v5';
 const CORE_ASSETS = [
   './',
   './index.html',

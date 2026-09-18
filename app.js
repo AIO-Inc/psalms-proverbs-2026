@@ -236,6 +236,7 @@
   const bookScreen = document.getElementById('book-screen');
   const closeBookBtn = document.getElementById('close-book');
   const searchBtn = document.getElementById('search-btn');
+  const tocBtn = document.getElementById('toc-btn');
   const searchOverlay = document.getElementById('search-overlay');
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
@@ -921,6 +922,15 @@
   });
 
   closeBookBtn.addEventListener('click', closeBook);
+
+  // TOC button — jump back to table of contents (page index 1)
+  if (tocBtn) {
+    tocBtn.addEventListener('click', () => {
+      if (pageFlip) {
+        pageFlip.flip(1, 'top');
+      }
+    });
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // SEARCH — searches both Psalms and Proverbs
