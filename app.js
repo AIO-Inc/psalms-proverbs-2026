@@ -394,6 +394,15 @@
   }
 
   // ─── Navigate to chapter ───
+  function reattachBook() {
+    // StPageFlip.destroy() removes #book from the DOM. Re-attach it so a
+    // rebuild renders into a live node (otherwise offsetWidth=0 => blank pages).
+    const bookWrap = document.getElementById('book-container');
+    if (bookWrap && !bookWrap.contains(bookContainer)) {
+      bookWrap.appendChild(bookContainer);
+    }
+  }
+
   async function navigateToChapter(bookId, chapterNum) {
     if (bookId !== currentBookId) {
       currentBookId = bookId;
@@ -401,8 +410,19 @@
         pageFlip.destroy();
         pageFlip = null;
       }
+      reattachBook();
       buildAllPages();
       initPageFlip();
+      // Defer the turn until layout settles (double RAF), then force a re-render
+      // so pages are measured at their real size, not 0×0.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (pageFlip) {
+          try { pageFlip.update(); } catch (err) {}
+          pageFlip.turnToPage(chapterNum);
+          handlePageChange(chapterNum);
+        }
+      }));
+      return;
     }
     // Chapter N = page index N (cover offset by 1 from the flip-based index)
     if (pageFlip) {
@@ -624,12 +644,7 @@
       try { pageFlip.getUI().removeHandlers(); } catch (err) {}
       pageFlip.destroy();
       pageFlip = null;
-      // StPageFlip.destroy() removes #book from the DOM entirely. Re-attach
-      // it so a subsequent openBook() can rebuild pages into a live node.
-      const bookWrap = document.getElementById('book-container');
-      if (bookWrap && !bookWrap.contains(bookContainer)) {
-        bookWrap.appendChild(bookContainer);
-      }
+      reattachBook();
     }
     hideAudioRibbon();
     topBarTitle.textContent = 'Psalms & Proverbs';
