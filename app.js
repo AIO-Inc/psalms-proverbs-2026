@@ -33,6 +33,7 @@
   const audioTitle = document.getElementById('audio-title');
   const speedBtn = document.getElementById('speed-btn');
   const audioEl = document.getElementById('audio-el');
+  const textSizeBtn = document.getElementById('text-size-btn');
 
   // ─── State ───
   let pageFlip = null;
@@ -44,6 +45,33 @@
   let currentAudioBook = null;
   let currentAudioChapter = null;
   let playbackRate = 1;
+
+  // ─── Text size (accessibility) ───
+  const TEXT_SCALES = [1, 1.15, 1.3, 1.5, 1.75, 2];
+  let textScaleIndex = 0;
+  const TEXT_SIZE_KEY = 'pp-text-scale';
+
+  function applyTextScale(scale) {
+    document.documentElement.style.setProperty('--text-scale', scale);
+  }
+
+  function nextTextScale() {
+    textScaleIndex = (textScaleIndex + 1) % TEXT_SCALES.length;
+    const scale = TEXT_SCALES[textScaleIndex];
+    applyTextScale(scale);
+    try { localStorage.setItem(TEXT_SIZE_KEY, String(textScaleIndex)); } catch (e) {}
+    updateTextSizeLabel();
+  }
+
+  function updateTextSizeLabel() {
+    const scale = TEXT_SCALES[textScaleIndex];
+    // Show a small "A" at base, progressively larger "A" at higher scales
+    if (scale <= 1.15) textSizeBtn.textContent = 'A';
+    else if (scale <= 1.3) textSizeBtn.textContent = 'A+';
+    else if (scale <= 1.5) textSizeBtn.textContent = 'A++';
+    else textSizeBtn.textContent = 'A+++';
+    textSizeBtn.style.fontSize = (13 + (scale - 1) * 10) + 'px';
+  }
 
   // ─── Books config ───
   const BOOKS = [
@@ -627,6 +655,7 @@
   tocBtn.addEventListener('click', showTocOverlay);
   tocCloseBtn.addEventListener('click', () => { tocOverlay.hidden = true; });
   searchBtn.addEventListener('click', openSearch);
+  textSizeBtn.addEventListener('click', nextTextScale);
   searchClose.addEventListener('click', closeSearch);
   searchInput.addEventListener('input', (e) => performSearch(e.target.value));
   audioPlay.addEventListener('click', toggleAudioPlay);
@@ -654,6 +683,16 @@
   });
 
   // ─── Init ───
+  // Restore persisted text size before first paint of any chapter
+  try {
+    const saved = parseInt(localStorage.getItem(TEXT_SIZE_KEY) || '0', 10);
+    if (!isNaN(saved) && saved >= 0 && saved < TEXT_SCALES.length) {
+      textScaleIndex = saved;
+      applyTextScale(TEXT_SCALES[saved]);
+      updateTextSizeLabel();
+    }
+  } catch (e) {}
+
   loadData().then(() => {
     console.log(`Loaded ${bookData.psalms.length} psalms, ${bookData.proverbs.length} proverbs`);
   }).catch(err => {

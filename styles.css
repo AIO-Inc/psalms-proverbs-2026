@@ -21,6 +21,7 @@
   --charcoal: #1a1a1a;
   --charcoal-light: #252525;
   --serif: Georgia, "Times New Roman", "Iowan Old Style", "Palatino Linotype", serif;
+  --text-scale: 1;
 }
 
 html, body {
@@ -636,7 +637,7 @@ html, body {
 
 .psalm-header h3 {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale, 1));
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--ink);
@@ -650,9 +651,32 @@ html, body {
   margin: 6px auto 0;
 }
 
+.psalm-header-num {
+  font-size: calc(11px * var(--text-scale, 1));
+  letter-spacing: 2px;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.psalm-header-title {
+  font-family: var(--serif);
+  font-size: calc(17px * var(--text-scale, 1));
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.psalm-header-rule {
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 8px auto 0;
+}
+
 .psalm-subtitle {
   text-align: center;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-style: italic;
   color: var(--ink-light);
   margin-bottom: 14px;
@@ -660,7 +684,7 @@ html, body {
 }
 
 .psalm-body {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale, 1));
   line-height: 1.65;
   color: var(--ink);
   text-align: justify;
@@ -705,7 +729,7 @@ html, body {
 }
 
 .notes-content {
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale, 1));
   font-style: italic;
   color: var(--ink-light);
   line-height: 1.5;
@@ -1146,9 +1170,9 @@ html, body {
   .toc-entry { font-size: 12px; }
   .toc-section-title { font-size: 11px; }
 
-  .psalm-body { font-size: 13px; line-height: 1.6; }
-  .psalm-header h3 { font-size: 14px; }
-  .psalm-subtitle { font-size: 11px; }
+  .psalm-body { font-size: calc(13px * var(--text-scale, 1)); line-height: 1.6; }
+  .psalm-header h3 { font-size: calc(14px * var(--text-scale, 1)); }
+  .psalm-subtitle { font-size: calc(11px * var(--text-scale, 1)); }
 
   #top-bar-title { font-size: 13px; }
 }
@@ -1161,7 +1185,7 @@ html, body {
   .cover-title { font-size: 28px; }
 
   .page { padding: 36px 32px 28px 32px; }
-  .psalm-body { font-size: 15px; line-height: 1.7; }
+  .psalm-body { font-size: calc(15px * var(--text-scale, 1)); line-height: 1.7; }
   .toc-entry { font-size: 14px; }
 }
 
