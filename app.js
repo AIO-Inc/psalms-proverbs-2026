@@ -205,10 +205,10 @@
       autoSize: true,
       maxShadowOpacity: 0.5,
       showCover: false,
-      mobileScrollSupport: false,
+      mobileScrollSupport: true,
       swipeDistance: 30,
       clickEventForward: false,
-      useMouseEvents: true,
+      useMouseEvents: false,
       showPageCorners: true,
       disableFlipByClick: true
     });
