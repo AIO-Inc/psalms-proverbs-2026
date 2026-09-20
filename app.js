@@ -214,14 +214,13 @@
     }
   }
 
-  // ─── Force single-page (portrait) on narrow screens ───
-  // StPageFlip switches to a 2-up "landscape" spread when the book width reaches
-  // 2×minWidth (560px). On phones/tablets that makes each next/prev skip TWO
-  // chapters (the even-number bug). Cap the book width below that threshold so
-  // handheld devices always render one page = one chapter.
+  // ─── Force single-page (portrait) on EVERY screen ───
+  // StPageFlip switches to a 2-up "landscape" spread when the book width
+  // reaches 2×minWidth (560px). In that mode turnToNextPage() advances a FULL
+  // spread = 2 chapters (the skip bug). Cap the book below 560px on ALL
+  // viewports so one page is always one chapter — mobile AND desktop.
   function syncPageMode() {
-    const narrow = window.innerWidth < 1024;
-    bookContainer.style.maxWidth = narrow ? '540px' : '';
+    bookContainer.style.maxWidth = '540px';
     if (pageFlip) { try { pageFlip.update(); } catch (e) {} }
   }
 
