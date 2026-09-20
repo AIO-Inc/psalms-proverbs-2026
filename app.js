@@ -252,7 +252,7 @@
       // two-page spread (always even). Track direction so audio follows the page
       // just revealed: forward flip reveals the right page (odd), backward reveals
       // the left (even).
-      if (pageFlip && pageFlip.getOrientation() === 'landscape') {
+      if (window.innerWidth >= 768 && pageFlip && pageFlip.getOrientation() === 'landscape') {
         const dir = leftIdx > lastLeftIndex ? 1 : (leftIdx < lastLeftIndex ? -1 : 0);
         // Cover spread is [cover, Psalm 1]: left page 0 is the cover, so the
         // meaningful chapter on the right is always 1.
