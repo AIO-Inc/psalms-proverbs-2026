@@ -730,9 +730,23 @@
     console.error('Failed to load data.json:', err);
   });
 
-  // Service worker
+  // Service worker — auto-reload once when a new version is live, so users
+  // get fixes without manually clearing cache or closing the app.
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+            if (!sessionStorage.getItem('sw-reloaded')) {
+              sessionStorage.setItem('sw-reloaded', '1');
+              location.reload();
+            }
+          }
+        });
+      });
+    }).catch(err => {
       console.error('SW registration failed:', err);
     });
   }
