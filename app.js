@@ -214,13 +214,8 @@
     }
   }
 
-  // ─── Force single-page (portrait) on EVERY screen ───
-  // StPageFlip switches to a 2-up "landscape" spread when the book width
-  // reaches 2×minWidth (560px). In that mode turnToNextPage() advances a FULL
-  // spread = 2 chapters (the skip bug). Cap the book below 560px on ALL
-  // viewports so one page is always one chapter — mobile AND desktop.
+  // ─── Keep render in sync on resize/rotation ───
   function syncPageMode() {
-    bookContainer.style.maxWidth = '540px';
     if (pageFlip) { try { pageFlip.update(); } catch (e) {} }
   }
 
@@ -275,6 +270,29 @@
     });
 
     pageFlip.loadFromHTML(allPages);
+
+    // ─── FORCE single-page (portrait) on ALL viewports ───
+    // StPageFlip auto-switches to a 2-up "landscape" spread when the book width
+    // reaches 2×minWidth (560px); in that mode turnToNextPage() advances a whole
+    // spread = 2 chapters (the skip bug). Override the orientation calculation so
+    // it ALWAYS reports portrait → one page is always one chapter, on every screen.
+    (function forceSinglePageMode() {
+      const render = pageFlip.getRender();
+      render.calculateBoundsRect = function () {
+        const blockW = this.getBlockWidth();
+        const i = blockW / 2;
+        const s = this.getBlockHeight() / 2;
+        const ratio = this.setting.width / this.setting.height;
+        let h = blockW;
+        if (h > this.setting.maxWidth) h = this.setting.maxWidth;
+        let r = h / ratio;
+        if (r > this.getBlockHeight()) { r = this.getBlockHeight(); h = r * ratio; }
+        const left = i - h / 2 - h;
+        this.boundsRect = { left: left, top: s - r / 2, width: 2 * h, height: r, pageWidth: h };
+        return 'portrait';
+      };
+      pageFlip.update();
+    })();
 
     // Cleanup after flip animation
     pageFlip.on('changeState', (e) => {
