@@ -214,6 +214,17 @@
     }
   }
 
+  // ─── Force single-page (portrait) on narrow screens ───
+  // StPageFlip switches to a 2-up "landscape" spread when the book width reaches
+  // 2×minWidth (560px). On phones/tablets that makes each next/prev skip TWO
+  // chapters (the even-number bug). Cap the book width below that threshold so
+  // handheld devices always render one page = one chapter.
+  function syncPageMode() {
+    const narrow = window.innerWidth < 1024;
+    bookContainer.style.maxWidth = narrow ? '540px' : '';
+    if (pageFlip) { try { pageFlip.update(); } catch (e) {} }
+  }
+
   // ─── Init StPageFlip ───
   function initPageFlip() {
     const allPages = Array.from(bookContainer.querySelectorAll('.stf__item'));
@@ -252,7 +263,7 @@
       // two-page spread (always even). Track direction so audio follows the page
       // just revealed: forward flip reveals the right page (odd), backward reveals
       // the left (even).
-      if (window.innerWidth >= 768 && pageFlip && pageFlip.getOrientation() === 'landscape') {
+      if (pageFlip && pageFlip.getOrientation() === 'landscape') {
         const dir = leftIdx > lastLeftIndex ? 1 : (leftIdx < lastLeftIndex ? -1 : 0);
         // Cover spread is [cover, Psalm 1]: left page 0 is the cover, so the
         // meaningful chapter on the right is always 1.
@@ -281,6 +292,7 @@
     });
 
     setupGestures();
+    syncPageMode();
   }
 
   // ─── Custom tap/swipe gestures (bypass StPageFlip's flaky touch handling) ───
@@ -696,6 +708,10 @@
     if (e.key === 'ArrowLeft' && pageFlip) pageFlip.turnToPrevPage();
     if (e.key === 'ArrowRight' && pageFlip) pageFlip.turnToNextPage();
   });
+
+  // Keep single-page/landscape mode in sync on resize / rotation
+  window.addEventListener('resize', syncPageMode);
+  window.addEventListener('orientationchange', syncPageMode);
 
   // ─── Init ───
   // Restore persisted text size before first paint of any chapter
