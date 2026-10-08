@@ -1,4 +1,4 @@
-const CACHE_NAME = 'psalms-proverbs-v38';
+const CACHE_NAME = 'psalms-proverbs-v39';
 const CORE_ASSETS = [
   './styles.css',
   './app.js',
@@ -34,12 +34,13 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // App shell + JS/CSS: network-first so deploys always show fresh.
+  // App shell + JS/CSS + data.json: network-first so deploys always show fresh.
   // Falls back to cache only when offline.
   if (url.pathname.endsWith('.html') ||
       url.pathname.endsWith('/') ||
       url.pathname.endsWith('.js') ||
-      url.pathname.endsWith('.css')) {
+      url.pathname.endsWith('.css') ||
+      url.pathname.endsWith('data.json')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
