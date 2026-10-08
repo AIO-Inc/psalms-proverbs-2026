@@ -217,6 +217,10 @@
     navigateToChapter(target.bookId, target.chapterNum);
   }
 
+  // If a link is opened while the app is already loaded (same-tab hash change),
+  // jump to that chapter instead of ignoring it.
+  window.addEventListener('hashchange', () => { handleDeepLink(); });
+
   async function loadData() {
     const resp = await fetch('data.json');
     bookData = await resp.json();
@@ -536,15 +540,23 @@
       reattachBook();
       buildAllPages();
       initPageFlip();
-      // Defer the turn until layout settles (double RAF), then force a re-render
-      // so pages are measured at their real size, not 0×0.
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        if (pageFlip) {
-          try { pageFlip.update(); } catch (err) {}
-          pageFlip.turnToPage(chapterNum);
-          handlePageChange(chapterNum);
-        }
-      }));
+      // Defer the turn until layout settles. StPageFlip measures pages at
+      // turnToPage time; right after init it can still report 0-width pages.
+      // RAF + settle delay + retry loop: keep trying until the page count is
+      // real and the turn sticks (verified by top-bar / current page index).
+      const tryTurn = (attempts) => {
+        if (!pageFlip) return;
+        try {
+          pageFlip.update();
+          if (pageFlip.getPageCount() >= chapterNum + 1) {
+            pageFlip.turnToPage(chapterNum);
+            handlePageChange(chapterNum);
+            return;
+          }
+        } catch (err) { /* not ready yet */ }
+        if (attempts > 0) setTimeout(() => tryTurn(attempts - 1), 150);
+      };
+      setTimeout(() => tryTurn(25), 100);
       return;
     }
     // Chapter N = page index N (cover offset by 1 from the flip-based index)
