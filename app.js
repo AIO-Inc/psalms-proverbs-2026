@@ -34,6 +34,7 @@
   const speedBtn = document.getElementById('speed-btn');
   const audioEl = document.getElementById('audio-el');
   const textSizeBtn = document.getElementById('text-size-btn');
+  const shareBtn = document.getElementById('share-btn');
 
   // ─── State ───
   let pageFlip = null;
@@ -122,7 +123,100 @@
     return html;
   }
 
-  // ─── Load all data from embedded JSON ───
+  // ─── Share ───
+  // Build clean forwardable text from the canon data (data.json — never a
+  // hand-copy). Title + body + translation notes, markdown stripped to plain.
+  function stripMarkdown(md) {
+    if (!md) return '';
+    let s = md;
+    // Bold/italic markers → plain text
+    s = s.replace(/\*\*\*([^*]+)\*\*\*/g, '$1');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '$1');
+    s = s.replace(/\*([^*]+)\*/g, '$1');
+    // Headings → plain lines
+    s = s.replace(/^#{1,6}\s+/gm, '');
+    // Horizontal rules → em dash separator
+    s = s.replace(/^\s*-{3,}\s*$/gm, '—');
+    // List bullets → plain
+    s = s.replace(/^\s*[-*]\s+/gm, '');
+    // Links [text](url) → text
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
+    // Collapse leftover emphasis markers
+    s = s.replace(/(\*\*|\*|__|_|`)/g, '');
+    return s.trim();
+  }
+
+  function buildShareText(bookId, chapterNum) {
+    const entry = bookData[bookId] ? bookData[bookId][chapterNum - 1] : null;
+    if (!entry || !entry.body) return null;
+    const label = bookId === 'psalms' ? 'Psalm' : 'Proverb';
+    const titleParts = entry.title.split(' — ');
+    const displayTitle = titleParts.length > 1 ? titleParts.slice(1).join(' — ') : entry.title;
+    let text = `${label} ${entry.num} — ${displayTitle}\n\n`;
+    text += stripMarkdown(entry.body);
+    if (entry.notes) {
+      text += `\n\n${stripMarkdown(entry.notes)}`;
+    }
+    text += `\n\n— ${label} ${entry.num}, Psalms & Proverbs 2026 Rendering`;
+    return text;
+  }
+
+  function shareChapter() {
+    if (currentPageIndex < 1) return; // cover — nothing to share
+    const label = currentBookId === 'psalms' ? 'Psalm' : 'Proverb';
+    const chapterNum = currentPageIndex;
+    const text = buildShareText(currentBookId, chapterNum);
+    if (!text) return;
+
+    const deepLink = `${location.origin}${location.pathname}#${currentBookId}-${entry_safe_num(chapterNum)}`;
+    const title = `${label} ${chapterNum}`;
+
+    if (navigator.share) {
+      navigator.share({ title: title, text: text, url: deepLink })
+        .catch(err => { if (err && err.name !== 'AbortError') console.error('Share failed:', err); });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(`${text}\n${deepLink}`)
+        .then(() => toastCopied())
+        .catch(() => window.prompt('Copy this chapter:', `${text}\n${deepLink}`));
+    } else {
+      window.prompt('Copy this chapter:', `${text}\n${deepLink}`);
+    }
+  }
+
+  function entry_safe_num(n) { return n; }
+
+  function toastCopied() {
+    let t = document.getElementById('copy-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'copy-toast';
+      t.textContent = 'Copied — paste it anywhere';
+      t.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(20,16,10,.92);color:var(--gold);font-family:var(--serif);font-size:13px;padding:8px 16px;border-radius:20px;border:1px solid var(--gold-dim);z-index:9999;opacity:0;transition:opacity .3s;';
+      document.body.appendChild(t);
+    }
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 1800);
+  }
+
+  // ─── Deep links: #psalms-23 / #proverbs-4 → open book at that chapter ───
+  function parseHash() {
+    const h = location.hash.replace(/^#/, '');
+    const m = h.match(/^(psalms|proverbs)-(\d{1,3})$/i);
+    if (!m) return null;
+    const num = parseInt(m[2], 10);
+    const bookId = m[1].toLowerCase();
+    const book = BOOKS.find(b => b.id === bookId);
+    if (!book || num < 1 || num > book.count) return null;
+    return { bookId, chapterNum: num };
+  }
+
+  async function handleDeepLink() {
+    const target = parseHash();
+    if (!target) return;
+    await openBook();
+    navigateToChapter(target.bookId, target.chapterNum);
+  }
+
   async function loadData() {
     const resp = await fetch('data.json');
     bookData = await resp.json();
@@ -699,6 +793,7 @@
   tocBtn.addEventListener('click', showTocOverlay);
   tocCloseBtn.addEventListener('click', () => { tocOverlay.hidden = true; });
   searchBtn.addEventListener('click', openSearch);
+  shareBtn.addEventListener('click', shareChapter);
   textSizeBtn.addEventListener('click', nextTextScale);
   searchClose.addEventListener('click', closeSearch);
   searchInput.addEventListener('input', (e) => performSearch(e.target.value));
@@ -743,6 +838,7 @@
 
   loadData().then(() => {
     console.log(`Loaded ${bookData.psalms.length} psalms, ${bookData.proverbs.length} proverbs`);
+    handleDeepLink();
   }).catch(err => {
     console.error('Failed to load data.json:', err);
   });
